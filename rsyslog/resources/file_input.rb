@@ -1,7 +1,7 @@
 # Cookbook:: rsyslog
 # Resource:: file_input
 #
-# Copyright:: 2012-2017, Joseph Holsten
+# Copyright:: 2012-2016, Joseph Holsten
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 # limitations under the License.
 #
 
+actions :create
+
 property :name, String, name_attribute: true, required: true
 property :file, String, required: true
 property :priority, Integer, default: 99
@@ -25,18 +27,18 @@ property :cookbook_source, String, default: 'rsyslog'
 property :template_source, String, default: 'file-input.conf.erb'
 
 action :create do
-  log_name = new_resource.name
-  template "/etc/rsyslog.d/#{new_resource.priority}-#{new_resource.name}.conf" do
+  log_name = name
+  template "/etc/rsyslog.d/#{priority}-#{name}.conf" do
     mode '0664'
     owner node['rsyslog']['user']
     group node['rsyslog']['group']
-    source new_resource.template_source
-    cookbook new_resource.cookbook_source
-    variables 'file_name' => new_resource.file,
+    source template_source
+    cookbook cookbook_source
+    variables 'file_name' => file,
               'tag' => log_name,
               'state_file' => log_name,
-              'severity' => new_resource.severity,
-              'facility' => new_resource.facility
+              'severity' => severity,
+              'facility' => facility
     notifies :restart, "service[#{node['rsyslog']['service_name']}]", :delayed
   end
 
